@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sitware
+      POSTGRES_PASSWORD: sitware-local
+      POSTGRES_DB: sitware
+    ports:
+      - "5432:5432"
+    volumes:
+      - sitware-postgres:/var/lib/postgresql/data
+volumes:
+  sitware-postgres:

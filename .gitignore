@@ -1,0 +1,14 @@
+node_modules/
+**/node_modules/
+**/.next/
+**/out/
+**/dist/
+**/build/
+.turbo/
+apps/backend/.medusa/
+**/.env
+**/.env.local
+**/.env.*.local
+*.log
+.DS_Store
+Thumbs.db

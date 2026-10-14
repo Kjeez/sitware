@@ -17,7 +17,7 @@ Requirements: Node.js 22.22 or newer, pnpm 10.11.1, and Docker Desktop (for the 
 2. Start PostgreSQL: `pnpm db:up`.
 3. Copy `apps/backend/.env.template` to `apps/backend/.env`. Replace both secrets with separate random values.
 4. In a terminal, start the backend: `pnpm backend:dev`. Medusa runs at `http://localhost:9000` and its admin is at `http://localhost:9000/app`.
-5. Create the first admin user in another terminal: `pnpm --filter @sitware/backend exec medusa user --email admin@sitware.local --password <choose-a-password>`.
+5. Create the first admin user in another terminal: `pnpm --filter @sitware/backend exec medusa user -e admin@sitware.local -p choose-a-password`.
 6. In the Medusa admin, set up the India region (country India, currency INR), a sales channel, a stock location, a shipping option and a publishable API key. Add real product prices, stock and images when they are finalized.
 7. Copy `apps/storefront/.env.template` to `apps/storefront/.env.local`, then paste the Medusa publishable key into `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`.
 8. Start the storefront: `pnpm storefront:dev`. Open `http://localhost:8000`.
@@ -41,4 +41,4 @@ The hero visual is an editorial concept image and may not match final production
 
 ## Notes
 
-The installed Medusa DTC starter is MIT licensed; see `LICENSE`. The backend needs a Medusa configuration (region, payment provider, shipping, catalog and publishable key) before transactions can be completed. Configure payment providers and real product data in Medusa Admin before opening checkout to customers.
+The installed Medusa DTC starter is MIT licensed; see `LICENSE`. The backend needs a Medusa configuration (region, payment provider, shipping, catalog and publishable key) before transactions can be completed. Configure payment providers and real product data in Medusa Admin before opening checkout to customers. The unused upstream sample seed has been removed because it contains European regions and apparel products.

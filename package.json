@@ -14,7 +14,6 @@
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "backend:dev": "turbo dev --filter=@sitware/backend",
-    "backend:seed": "pnpm --filter @dtc/backend exec medusa db:seed -f ./src/migration-scripts/initial-data-seed.ts",
     "storefront:dev": "turbo dev --filter=@sitware/storefront"
   },
   "pnpm": {

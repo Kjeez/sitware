@@ -278,58 +278,15 @@ export async function applyPromotions(codes: string[]) {
     .catch(medusaError)
 }
 
-export async function applyGiftCard(code: string) {
-  //   const cartId = getCartId()
-  //   if (!cartId) return "No cartId cookie found"
-  //   try {
-  //     await updateCart(cartId, { gift_cards: [{ code }] }).then(() => {
-  //       revalidateTag("cart")
-  //     })
-  //   } catch (error: any) {
-  //     throw error
-  //   }
-}
-
-export async function removeDiscount(code: string) {
-  // const cartId = getCartId()
-  // if (!cartId) return "No cartId cookie found"
-  // try {
-  //   await deleteDiscount(cartId, code)
-  //   revalidateTag("cart")
-  // } catch (error: any) {
-  //   throw error
-  // }
-}
-
-export async function removeGiftCard(
-  codeToRemove: string,
-  giftCards: any[]
-  // giftCards: GiftCard[]
-) {
-  //   const cartId = getCartId()
-  //   if (!cartId) return "No cartId cookie found"
-  //   try {
-  //     await updateCart(cartId, {
-  //       gift_cards: [...giftCards]
-  //         .filter((gc) => gc.code !== codeToRemove)
-  //         .map((gc) => ({ code: gc.code })),
-  //     }).then(() => {
-  //       revalidateTag("cart")
-  //     })
-  //   } catch (error: any) {
-  //     throw error
-  //   }
-}
-
 export async function submitPromotionForm(
   currentState: unknown,
   formData: FormData
 ) {
-  const code = formData.get("code") as string
+  const code = String(formData.get("code") ?? "")
   try {
     await applyPromotions([code])
-  } catch (e: any) {
-    return e.message
+  } catch (error) {
+    return error instanceof Error ? error.message : "Unable to apply promotion code"
   }
 }
 
@@ -344,41 +301,43 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
       throw new Error("No existing cart found when setting addresses")
     }
 
-    const data = {
-      shipping_address: {
-        first_name: formData.get("shipping_address.first_name"),
-        last_name: formData.get("shipping_address.last_name"),
-        address_1: formData.get("shipping_address.address_1"),
-        address_2: "",
-        company: formData.get("shipping_address.company"),
-        postal_code: formData.get("shipping_address.postal_code"),
-        city: formData.get("shipping_address.city"),
-        country_code: formData.get("shipping_address.country_code"),
-        province: formData.get("shipping_address.province"),
-        phone: formData.get("shipping_address.phone"),
-      },
-      email: formData.get("email"),
-    } as any
-
-    const sameAsBilling = formData.get("same_as_billing")
-    if (sameAsBilling === "on") data.billing_address = data.shipping_address
-
-    if (sameAsBilling !== "on")
-      data.billing_address = {
-        first_name: formData.get("billing_address.first_name"),
-        last_name: formData.get("billing_address.last_name"),
-        address_1: formData.get("billing_address.address_1"),
-        address_2: "",
-        company: formData.get("billing_address.company"),
-        postal_code: formData.get("billing_address.postal_code"),
-        city: formData.get("billing_address.city"),
-        country_code: formData.get("billing_address.country_code"),
-        province: formData.get("billing_address.province"),
-        phone: formData.get("billing_address.phone"),
-      }
+    const getValue = (name: string) => {
+      const value = formData.get(name)
+      return typeof value === "string" ? value : ""
+    }
+    const shippingAddress: HttpTypes.StoreAddAddress = {
+      first_name: getValue("shipping_address.first_name"),
+      last_name: getValue("shipping_address.last_name"),
+      address_1: getValue("shipping_address.address_1"),
+      address_2: "",
+      company: getValue("shipping_address.company"),
+      postal_code: getValue("shipping_address.postal_code"),
+      city: getValue("shipping_address.city"),
+      country_code: getValue("shipping_address.country_code"),
+      province: getValue("shipping_address.province"),
+      phone: getValue("shipping_address.phone"),
+    }
+    const billingAddress: HttpTypes.StoreAddAddress = {
+      first_name: getValue("billing_address.first_name"),
+      last_name: getValue("billing_address.last_name"),
+      address_1: getValue("billing_address.address_1"),
+      address_2: "",
+      company: getValue("billing_address.company"),
+      postal_code: getValue("billing_address.postal_code"),
+      city: getValue("billing_address.city"),
+      country_code: getValue("billing_address.country_code"),
+      province: getValue("billing_address.province"),
+      phone: getValue("billing_address.phone"),
+    }
+    const data: HttpTypes.StoreUpdateCart = {
+      shipping_address: shippingAddress,
+      billing_address:
+        formData.get("same_as_billing") === "on" ? shippingAddress : billingAddress,
+      email: getValue("email"),
+    }
     await updateCart(data)
-  } catch (e: any) {
-    return e.message
+  } catch (error) {
+    return error instanceof Error ? error.message : "Unable to update addresses"
   }
 
   redirect(

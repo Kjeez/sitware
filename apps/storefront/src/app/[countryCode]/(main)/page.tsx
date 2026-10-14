@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "SITWARE | Designed For Better Work",
@@ -51,13 +52,13 @@ export default function Home() {
       </section>
 
       <section className="products section-pad" id="workstations">
-        <div className="section-heading"><div><p className="eyebrow">Find your flow</p><h2>Two ways to work better.</h2></div><a className="text-link dark-link" href="/in/store">Explore the collection <span>↗</span></a></div>
+        <div className="section-heading"><div><p className="eyebrow">Find your flow</p><h2>Two ways to work better.</h2></div><Link className="text-link dark-link" href="/in/store">Explore the collection <span>↗</span></Link></div>
         <div className="product-grid">{ways.map((item) => <article className="product-card" key={item.name}>
           <div className={`product-art ${item.kind}`} aria-label={`${item.name} workstation illustration`}>
             <div className="art-wall" /><div className="art-desk" /><div className="art-screen"><i /></div><div className="art-platform top" />{item.kind === "double" && <div className="art-platform lower" />}<div className="art-leg left" /><div className="art-leg right" /><div className="art-keyboard" />
             <span className="art-index">SITWARE / {item.number}</span>
           </div>
-          <div className="product-info"><div><span className="eyebrow">{item.number} / WORKSTATION</span><h3>{item.name}</h3><p className="product-line">{item.line}</p></div><p>{item.description}</p><a className="text-link dark-link" href="/in/store">Discover {item.name} <span>↗</span></a></div>
+          <div className="product-info"><div><span className="eyebrow">{item.number} / WORKSTATION</span><h3>{item.name}</h3><p className="product-line">{item.line}</p></div><p>{item.description}</p><Link className="text-link dark-link" href="/in/store">Discover {item.name} <span>↗</span></Link></div>
         </article>)}</div>
       </section>
 
@@ -70,9 +71,9 @@ export default function Home() {
 
       <section className="contexts section-pad"><p className="eyebrow">Made to fit your day</p><h2>Wherever good work happens.</h2><div className="context-grid">{contexts.map((item, i) => <div className={`context context-${i + 1}`} key={item}><span>0{i + 1}</span><p>{item}</p></div>)}</div></section>
 
-      <section className="story section-pad" id="story"><div className="story-stamp">S<br />/W</div><div><p className="eyebrow">The thought behind Sitware</p><h2>Work has changed.<br /><em>Our desks haven’t.</em></h2><p>We started Sitware with a simple idea: you shouldn’t have to start over to make your workspace work better. Thoughtful design can help the desk you already have feel more like your own.</p><a className="text-link dark-link" href="/in/store">Get to know Sitware <span>↗</span></a></div></section>
+      <section className="story section-pad" id="story"><div className="story-stamp">S<br />/W</div><div><p className="eyebrow">The thought behind Sitware</p><h2>Work has changed.<br /><em>Our desks haven’t.</em></h2><p>We started Sitware with a simple idea: you shouldn’t have to start over to make your workspace work better. Thoughtful design can help the desk you already have feel more like your own.</p><Link className="text-link dark-link" href="/in/store">Get to know Sitware <span>↗</span></Link></div></section>
 
-      <section className="closing-cta"><p className="eyebrow light">A good day starts somewhere</p><h2>Make your workspace<br /><em>work better for you.</em></h2><a className="button button-cream" href="/in/store">Explore Sitware <span>↗</span></a></section>
+      <section className="closing-cta"><p className="eyebrow light">A good day starts somewhere</p><h2>Make your workspace<br /><em>work better for you.</em></h2><Link className="button button-cream" href="/in/store">Explore Sitware <span>↗</span></Link></section>
     </div>
   )
 }

@@ -1,16 +1,17 @@
 "use client"
 
+import { useFormAction } from "@lib/hooks/use-form-action"
 import { submitReview } from "@lib/data/reviews"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import Input from "@modules/common/components/input"
 import { Button } from "@modules/common/components/ui"
-import { useActionState, useState } from "react"
+import { useState } from "react"
 
 const ReviewForm = ({ productId }: { productId: string }) => {
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState(0)
-  const [state, formAction] = useActionState(submitReview, null)
+  const [state, onSubmit, pending] = useFormAction(submitReview, null)
 
   if (state?.state === "done") {
     return (
@@ -33,7 +34,11 @@ const ReviewForm = ({ productId }: { productId: string }) => {
   }
 
   return (
-    <form action={formAction} className="sw-review-form" data-testid="review-form">
+    <form
+      onSubmit={onSubmit}
+      className="sw-review-form"
+      data-testid="review-form"
+    >
       <input type="hidden" name="product_id" value={productId} />
       <fieldset>
         <legend>Your rating</legend>
@@ -74,8 +79,14 @@ const ReviewForm = ({ productId }: { productId: string }) => {
         data-testid="review-error-message"
       />
       <div className="flex flex-wrap gap-3">
-        <SubmitButton data-testid="submit-review-button">Submit review</SubmitButton>
-        <Button variant="transparent" type="button" onClick={() => setOpen(false)}>
+        <SubmitButton isLoading={pending} data-testid="submit-review-button">
+          Submit review
+        </SubmitButton>
+        <Button
+          variant="transparent"
+          type="button"
+          onClick={() => setOpen(false)}
+        >
           Cancel
         </Button>
       </div>

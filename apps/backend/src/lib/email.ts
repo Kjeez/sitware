@@ -15,6 +15,31 @@ const HTML_ESCAPES: Record<string, string> = {
 
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => HTML_ESCAPES[c])
 
+/** Minimal branded email with labelled lines and a free-text message, no button. */
+export function renderMessageEmail(opts: {
+  subject: string
+  heading: string
+  fields: [string, string][]
+  message: string
+}) {
+  const rows = opts.fields
+    .map(
+      ([label, value]) =>
+        `<p style="margin:0 0 8px;font-size:14px;color:#4a413a"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`
+    )
+    .join("")
+  const html = `<!doctype html><html><body style="margin:0;background:${PAPER};font-family:Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
+<table width="100%" style="max-width:520px;background:#ffffff;border:1px solid #e0d2c2;border-radius:12px" cellpadding="0" cellspacing="0">
+<tr><td style="padding:32px">
+<h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:20px;font-weight:normal;color:${INK}">${escapeHtml(opts.heading)}</h1>
+${rows}
+<p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:#4a413a;white-space:pre-line">${escapeHtml(opts.message)}</p>
+</td></tr></table></td></tr></table></body></html>`
+  const text = [opts.heading, "", ...opts.fields.map(([l, v]) => `${l}: ${v}`), "", opts.message].join("\n")
+  return { subject: opts.subject, html, text }
+}
+
 /** Minimal branded email with one call-to-action button. */
 export function renderActionEmail(opts: {
   subject: string

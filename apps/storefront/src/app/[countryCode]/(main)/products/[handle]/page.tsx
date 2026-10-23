@@ -6,28 +6,10 @@ import { retrieveCustomer } from "@lib/data/customer"
 import { getMyReview, getProductReviews } from "@lib/data/reviews"
 import { getWishlist } from "@lib/data/wishlist"
 import ProductTemplate from "@modules/products/templates"
-import { HttpTypes } from "@medusajs/types"
+import { isWorkstationHandle, WORKSTATIONS } from "@lib/workstations"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
-  searchParams: Promise<{ v_id?: string }>
-}
-
-function getImagesForVariant(
-  product: HttpTypes.StoreProduct,
-  selectedVariantId?: string,
-) {
-  if (!selectedVariantId || !product.variants) {
-    return product.images
-  }
-
-  const variant = product.variants!.find((v) => v.id === selectedVariantId)
-  if (!variant || !variant.images?.length) {
-    return product.images
-  }
-
-  const imageIdsMap = new Map(variant.images!.map((i) => [i.id, true]))
-  return product.images?.filter((i) => imageIdsMap.has(i.id)) ?? null
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
@@ -48,13 +30,21 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
+  const workstation = isWorkstationHandle(handle) ? WORKSTATIONS[handle] : null
+  const title = `${workstation?.name ?? product.title} | SITWARE`
+  const description =
+    workstation?.description ?? product.description ?? product.subtitle ?? product.title
+  const image = product.thumbnail ?? workstation?.photo
+
   return {
-    title: `${product.title} | SITWARE`,
-    description: `${product.title}`,
+    title,
+    description,
+    alternates: { canonical: `/${params.countryCode}/products/${handle}` },
     openGraph: {
-      title: `${product.title} | SITWARE`,
-      description: `${product.title}`,
-      images: product.thumbnail ? [product.thumbnail] : [],
+      title,
+      description,
+      type: "website",
+      images: image ? [image] : undefined,
     },
   }
 }
@@ -62,10 +52,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function ProductPage(props: Props) {
   const params = await props.params
   const region = await getRegion(params.countryCode)
-  const searchParams = await props.searchParams
-
-  const selectedVariantId = searchParams.v_id
-
   if (!region) {
     notFound()
   }
@@ -79,8 +65,6 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
-  const images = getImagesForVariant(pricedProduct, selectedVariantId)
-
   const [customer, wishlist, reviews, myReview] = await Promise.all([
     retrieveCustomer(),
     getWishlist(),
@@ -91,9 +75,7 @@ export default async function ProductPage(props: Props) {
   return (
     <ProductTemplate
       product={pricedProduct}
-      region={region}
       countryCode={params.countryCode}
-      images={images ?? []}
       signedIn={!!customer}
       wishlisted={!!wishlist?.some((item) => item.product_id === pricedProduct.id)}
       reviews={reviews}

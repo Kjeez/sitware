@@ -56,6 +56,7 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
         subject: content.subject,
         html: content.html,
         text: content.text,
+        reply_to: (notification.provider_data?.reply_to as string | undefined) || undefined,
       }),
     })
     const json = await res.json().catch(() => ({}))

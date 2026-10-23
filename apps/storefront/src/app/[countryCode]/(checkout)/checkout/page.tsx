@@ -4,10 +4,12 @@ import PaymentWrapper from "@modules/checkout/components/payment-wrapper"
 import CheckoutForm from "@modules/checkout/templates/checkout-form"
 import CheckoutSummary from "@modules/checkout/templates/checkout-summary"
 import { Metadata } from "next"
+import { NOINDEX } from "@lib/site"
 import { notFound } from "next/navigation"
 
 export const metadata: Metadata = {
-  title: "Checkout",
+  title: "Checkout | SITWARE",
+  robots: NOINDEX,
 }
 
 export default async function Checkout() {

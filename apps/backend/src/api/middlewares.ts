@@ -8,7 +8,9 @@ import {
   AdminListReviews,
   AdminUpdateReview,
   StoreAddWishlistItem,
+  StoreContactMessage,
   StoreCreateReview,
+  StoreOrderStatusLookup,
 } from './validators'
 
 // Routes under /store/customers/me* are already authenticated as a customer by Medusa core.
@@ -36,6 +38,16 @@ export default defineMiddlewares({
       method: ['POST'],
       matcher: '/store/customers/me/reviews',
       middlewares: [validateAndTransformBody(StoreCreateReview)],
+    },
+    {
+      method: ['POST'],
+      matcher: '/store/order-status',
+      middlewares: [validateAndTransformBody(StoreOrderStatusLookup)],
+    },
+    {
+      method: ['POST'],
+      matcher: '/store/contact',
+      middlewares: [validateAndTransformBody(StoreContactMessage)],
     },
     {
       method: ['GET'],

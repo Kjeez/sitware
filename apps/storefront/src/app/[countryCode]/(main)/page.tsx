@@ -1,75 +1,287 @@
+/* eslint-disable @next/next/no-img-element -- art-directed editorial images with parallax */
 import { Metadata } from "next"
+
+import { getWorkstationListings } from "@lib/data/workstations"
+import { SITE_URL } from "@lib/site"
+import { WORKSTATION_ORDER, WORKSTATIONS } from "@lib/workstations"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { WorkspaceIcon } from "@modules/sitware/workspace-icon"
+import FaqList from "@modules/sitware/faq-list"
+import { BENEFITS, FAQS, SCENES } from "@modules/sitware/home-content"
+import JsonLd from "@modules/sitware/json-ld"
+import StepsShowcase from "@modules/sitware/steps-showcase"
 
 export const metadata: Metadata = {
   title: "SITWARE | Designed For Better Work.",
-  description: "Thoughtful workspace products for a more flexible, focused and intentional way to work.",
+  description:
+    "Sitware Shift and Shift Pro upgrade the desk you already have for a more flexible, focused and intentional way of working.",
 }
 
-const workstations = [
-  { name: "Shift", image: "shift", description: "For flexible everyday work.", features: [{ icon: "laptop", text: "A place for your laptop" }, { icon: "space", text: "A considered setup" }, { icon: "home", text: "Home / hybrid work" }] },
-  { name: "Shift Pro", image: "shift-pro", description: "For complete workstations.", features: [{ icon: "monitor", text: "Monitor + keyboard setups" }, { icon: "layers", text: "Space for your essentials" }, { icon: "briefcase", text: "Professional work" }] },
-] as const
+type Props = { params: Promise<{ countryCode: string }> }
 
-const steps = ["Your existing desk", "Add Sitware", "Work sitting", "Work standing"]
-const contexts = [
-  { name: "Home Office", description: "A calmer place for your everyday work." },
-  { name: "Creators", description: "Space to make, edit, and bring ideas to life." },
-  { name: "Professionals", description: "A thoughtful setting for focused work." },
-  { name: "Hybrid Work", description: "A space that feels like your own, wherever you work." },
-]
+export default async function Home(props: Props) {
+  const { countryCode } = await props.params
+  const listings = await getWorkstationListings(countryCode)
+  const shiftPrice = listings.shift.price
 
-export default function Home() {
   return (
-    <div className="sitware-home">
-      <section className="sw-hero" aria-labelledby="hero-title">
-        <div className="hero-photo" role="img" aria-label="Golden hour workspace with laptop and monitor desk converters" />
-        <div className="hero-shade" />
-        <div className="hero-copy">
-          <p className="eyebrow light">A better way to work</p>
-          <h1 id="hero-title">Your desk doesn’t<br />need to change.<br /><em>The way you work does.</em></h1>
-          <p className="hero-intro">Upgrade the desk you already have for a more flexible, focused and intentional way of working.</p>
-          <div className="hero-buttons"><a className="button button-copper" href="#workstations">Explore Workstations <span aria-hidden="true">→</span></a><a className="button button-outline" href="#belief">Why Sitware</a></div>
+    <div className="sw-home">
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Sitware",
+            url: SITE_URL,
+            slogan: "Designed For Better Work.",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: FAQS.map((faq) => ({
+              "@type": "Question",
+              name: faq.q,
+              acceptedAnswer: { "@type": "Answer", text: faq.a },
+            })),
+          },
+        ]}
+      />
+
+      <header className="sw-hero" aria-labelledby="hero-title">
+        <div className="sw-hero-media">
+          <img
+            data-parallax="0.18"
+            src="/images/editorial/sitware-hero-v2.webp"
+            alt="Sitware Shift and Shift Pro on a walnut desk at golden hour"
+            fetchPriority="high"
+          />
         </div>
-        <p className="hero-note">Designed For Better Work.</p>
-      </section>
+        <div className="sw-hero-shade" />
+        <div className="sw-hero-copy">
+          <span className="sw-kicker sw-hero-fade">Designed For Better Work.</span>
+          <h1 id="hero-title">
+            <span className="sw-line">
+              <span>Your desk doesn’t</span>
+            </span>
+            <span className="sw-line">
+              <span>need to change.</span>
+            </span>
+            <span className="sw-line">
+              <em>The way you work does.</em>
+            </span>
+          </h1>
+          <div className="sw-hero-sub sw-hero-fade">
+            <p>
+              Upgrade the desk you already have for a more flexible, focused and intentional way
+              of working.
+            </p>
+            <div className="sw-actions-row">
+              <a href="#workstations" className="sw-pill sw-pill-light">
+                Explore Workstations <span aria-hidden="true">→</span>
+              </a>
+              <a href="#story" className="sw-pill sw-pill-ghost">
+                Why Sitware
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className="sw-hero-foot sw-hero-fade">
+          <span>Sit. Stand. Shift.</span>
+          <span className="sw-scroll-cue" aria-hidden="true">
+            Scroll
+            <span />
+          </span>
+          <LocalizedClientLink href="/workstations/shift">
+            {shiftPrice ? `Shift from ${shiftPrice}` : "Meet Shift"} <span aria-hidden="true">→</span>
+          </LocalizedClientLink>
+        </div>
+      </header>
 
-      <section className="brand-intro section-pad" id="belief" aria-labelledby="brand-title">
-        <div className="brand-copy"><p className="eyebrow">Sitware / Our philosophy</p><span className="copper-rule" /><h2 id="brand-title">Designed<br />For Better<br /><em>Work.</em></h2><p className="serif-intro">Better work begins with a better workspace.</p><p>Sitware creates thoughtful workspace products designed to make everyday work more comfortable, organized, flexible and intentional.</p></div>
-        <div className="reference-photo brand-photo" role="img" aria-label="Sunlit walnut desk with a laptop, notebook and ceramic cup" />
-      </section>
-
-      <section className="products section-pad" id="workstations" aria-labelledby="products-title">
-        <p className="eyebrow">Our workstations <span className="inline-rule" /></p><h2 id="products-title">Two ways to work better.</h2><p className="serif-intro">Different work styles. Same desk. Find the workstation that fits your setup.</p>
-        <div className="product-grid">{workstations.map((item) => <article className="product-card" key={item.name}>
-          <div className={"reference-photo product-photo " + item.image} role="img" aria-label={"Illustrative " + item.name + " workspace concept"} />
-          <div className="product-info"><h3>Sitware {item.name}</h3><span className="copper-rule" /><p className="product-line">{item.description}</p><ul>{item.features.map((feature) => <li key={feature.text}><span className="feature-icon"><WorkspaceIcon name={feature.icon} /></span><span>{feature.text}</span></li>)}</ul><LocalizedClientLink className="button button-copper rounded-button" href={item.image === "shift" ? "/workstations/shift" : "/workstations/shift-pro"}>Explore {item.name} <span aria-hidden="true">→</span></LocalizedClientLink></div>
-        </article>)}</div>
-        <p className="image-caption">Workspace imagery illustrates the design direction. Final product details will be shared with the collection.</p>
-      </section>
-
-      <section className="benefits section-pad" id="better-work" aria-label="A better workspace helps you">
-        <p className="eyebrow light">A better workspace helps you</p><div className="benefit-grid">
-          <article><WorkspaceIcon name="focus" /><h3>Better Focus</h3><p>A workspace that asks for less attention.</p></article>
-          <article><WorkspaceIcon name="flow" /><h3>Better Flow</h3><p>Make room to move between sitting and standing through your day.</p></article>
-          <article><WorkspaceIcon name="box" /><h3>Better Organization</h3><p>A more thoughtful place for the way you work.</p></article>
+      <section id="workstations" className="sw-section" aria-labelledby="workstations-title">
+        <div className="sw-container sw-stack-xl">
+          <div className="sw-section-head" data-reveal="">
+            <span className="sw-kicker">Our Workstations</span>
+            <h2 id="workstations-title" className="sw-h2 sw-h2-xl">
+              Two ways to <em>work better.</em>
+            </h2>
+            <p>Different work styles. Same desk. Find the workstation that fits your setup.</p>
+          </div>
+          <div className="sw-workstation-grid">
+            {WORKSTATION_ORDER.map((handle, index) => {
+              const w = WORKSTATIONS[handle]
+              const { price } = listings[handle]
+              const href = `/workstations/${handle}`
+              return (
+                <article
+                  key={handle}
+                  className="sw-workstation-card"
+                  data-reveal=""
+                  data-delay={index * 140}
+                >
+                  <LocalizedClientLink href={href} className="sw-workstation-media" tabIndex={-1}>
+                    <img className="sw-cutout" src={w.cutout} alt={w.name} loading="lazy" />
+                    <img className="sw-photo" src={w.photo} alt="" loading="lazy" />
+                    <span className="sw-tag">{w.badge}</span>
+                  </LocalizedClientLink>
+                  <div className="sw-workstation-body">
+                    <div className="sw-workstation-title">
+                      <div>
+                        <h3>{w.name}</h3>
+                        <span className="sw-message">{w.message}</span>
+                      </div>
+                      <div className="sw-price">
+                        <span>{price ?? "₹ —"}</span>
+                        <small>{price ? "Incl. GST" : "Pricing at launch"}</small>
+                      </div>
+                    </div>
+                    <dl className="sw-facts sw-facts-2">
+                      <div>
+                        <dt>Setup</dt>
+                        <dd>{w.setup}</dd>
+                      </div>
+                      <div>
+                        <dt>Best for</dt>
+                        <dd>{w.bestFor}</dd>
+                      </div>
+                    </dl>
+                    <div className="sw-actions-row">
+                      <LocalizedClientLink href={href} className="sw-pill sw-pill-dark">
+                        Shop {w.short} <span aria-hidden="true">→</span>
+                      </LocalizedClientLink>
+                      <LocalizedClientLink
+                        href={href}
+                        className="sw-pill sw-pill-outline"
+                        aria-label={`${w.short} details`}
+                      >
+                        Details
+                      </LocalizedClientLink>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+          <div className="sw-note-row" data-reveal="">
+            <p>
+              Workspace imagery illustrates the design direction. Final product details will be
+              shared with the collection.
+            </p>
+            <LocalizedClientLink href="/workstations/shift-pro#compare" className="sw-text-link">
+              Compare Shift and Shift Pro →
+            </LocalizedClientLink>
+          </div>
         </div>
       </section>
 
-      <section className="how-it-works section-pad" id="how-it-works" aria-labelledby="steps-title">
-        <p className="eyebrow">Same desk. A different way to work.</p><h2 id="steps-title">From one height<br />to a more <em>flexible</em> way of working.</h2>
-        <ol className="steps-grid">{steps.map((step, index) => <li key={step}><div className={"reference-photo step-photo step-" + (index + 1)} role="img" aria-label={step} /><div className="step-label"><span>0{index + 1}<i /></span><h3>{step}</h3></div>{index < 3 && <span className="step-arrow" aria-hidden="true">→</span>}</li>)}</ol>
+      <section id="story" className="sw-section sw-dark" aria-labelledby="story-title">
+        <div className="sw-stack-xxl">
+          <div className="sw-section-head sw-gutter" data-reveal="">
+            <span className="sw-kicker">Our Thinking</span>
+            <h2 id="story-title" className="sw-h2 sw-h2-xxl">
+              Work has changed. <em>Our desks haven’t.</em>
+            </h2>
+            <p className="sw-lede">
+              We believe a better workspace shouldn’t always mean replacing everything around you.
+              Sitware creates thoughtful products that help make the space you already have more
+              comfortable, organized, flexible and intentional.
+            </p>
+          </div>
+          <div className="sw-gutter" data-reveal="">
+            <div className="sw-wide-frame">
+              <img
+                data-parallax="0.12"
+                src="/images/sitware/changed.webp"
+                alt="Shift Pro workstation by a window"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div className="sw-container sw-stack-lg">
+            <div className="sw-split-line" data-reveal="">
+              <span className="sw-quote">Better work begins with a better workspace.</span>
+              <span className="sw-kicker sw-kicker-muted">A better workspace helps you</span>
+            </div>
+            <div className="sw-benefits">
+              {BENEFITS.map((benefit, index) => (
+                <div key={benefit.num} data-reveal="" data-delay={index * 120}>
+                  <span className="sw-num">{benefit.num}</span>
+                  <h3>{benefit.title}</h3>
+                  <p>{benefit.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section className="contexts section-pad" aria-labelledby="contexts-title"><p className="eyebrow light">Sitware</p><h2 id="contexts-title">A better way to work,<br />wherever you are.</h2><div className="context-grid">{contexts.map((context, index) => <article className="context" key={context.name}><div className={"reference-photo context-photo context-" + (index + 1)} role="img" aria-label={context.name + " workspace inspiration"} /><div className="context-copy"><h3>{context.name}</h3><p>{context.description}</p><span className="copper-rule" /></div></article>)}</div></section>
+      <section id="better-work" className="sw-section" aria-label="How Sitware works">
+        <div className="sw-container">
+          <StepsShowcase />
+        </div>
+      </section>
 
-      <section className="story" id="story" aria-labelledby="story-title"><div className="reference-photo story-photo" role="img" aria-label="Warm home office with a monitor workstation on a walnut desk" /><div className="story-copy"><p className="eyebrow">Our thinking</p><h2 id="story-title">Work has changed.<br /><em>Our desks</em> haven’t.</h2><span className="copper-rule" /><p>We believe a better workspace shouldn’t always mean replacing everything around you. Sitware creates thoughtful products that help make the space you already have more comfortable, organized, flexible and intentional.</p><a className="button button-copper" href="#belief">Our Philosophy <span aria-hidden="true">→</span></a></div></section>
+      <section className="sw-section sw-sand" aria-labelledby="scenes-title">
+        <div className="sw-container sw-stack-lg">
+          <h2 id="scenes-title" className="sw-h2" data-reveal="">
+            A better way to work, <em>wherever you are.</em>
+          </h2>
+          <div className="sw-scenes">
+            {SCENES.map((scene, index) => (
+              <LocalizedClientLink
+                key={scene.title}
+                href="/#workstations"
+                className="sw-scene"
+                data-reveal=""
+                data-delay={index * 110}
+              >
+                <div>
+                  <img src={scene.img} alt={scene.title} loading="lazy" />
+                </div>
+                <h3>{scene.title}</h3>
+                <p>{scene.text}</p>
+              </LocalizedClientLink>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      <section className="workspace-notes section-pad" id="workspace-notes"><p className="eyebrow">Room for your own rhythm</p><h2>What does better work<br />look like for you?</h2><div className="notes-grid"><article><span>01 / YOUR SPACE</span><h3>Keep what you love.</h3><p>A familiar desk. Your favourite corner. Start with the space that already feels like you.</p></article><article><span>02 / YOUR DAY</span><h3>Make room for change.</h3><p>From a quiet morning to a busy afternoon, think about how your workspace can fit your day.</p></article><article><span>03 / YOUR TOOLS</span><h3>Give everything a place.</h3><p>Consider the tools you reach for most, and make space for the work you want to do.</p></article></div></section>
+      <section className="sw-cta" aria-labelledby="cta-title">
+        <img
+          data-parallax="0.15"
+          src="/images/sitware/cta.webp"
+          alt="Two Sitware workstations side by side"
+          loading="lazy"
+        />
+        <div className="sw-cta-shade" />
+        <div className="sw-cta-copy" data-reveal="">
+          <span className="sw-kicker">Designed For Better Work.</span>
+          <h2 id="cta-title" className="sw-h2 sw-h2-xxl">
+            Make your workspace work <em>better for you.</em>
+          </h2>
+          <div className="sw-actions-row">
+            <LocalizedClientLink href="/workstations/shift" className="sw-pill sw-pill-light">
+              Shop Shift{shiftPrice ? ` · ${shiftPrice}` : ""}
+            </LocalizedClientLink>
+            <LocalizedClientLink href="/workstations/shift-pro" className="sw-pill sw-pill-ghost">
+              Shop Shift Pro <span aria-hidden="true">→</span>
+            </LocalizedClientLink>
+          </div>
+        </div>
+      </section>
 
-      <section className="closing-cta"><div className="closing-shade" /><div className="closing-copy"><h2>Make your<br />workspace work<br /><em>better for you.</em></h2><p>Designed For Better Work.</p><div className="hero-buttons"><a className="button button-copper" href="#workstations">Explore Workstations <span aria-hidden="true">→</span></a><a className="button button-outline" href="#story">Our Story</a></div></div></section>
-      <section className="support section-pad" id="support"><p className="eyebrow">A little more clarity</p><h2>Good questions. Thoughtful answers.</h2><details><summary>What is Sitware?</summary><p>Sitware is a workspace brand built around the idea of making the desk you already have work better for you.</p></details><details><summary>Which workstations are in the collection?</summary><p>The collection is focused on Shift and Shift Pro. Final specifications, availability and prices will be shared when confirmed.</p></details><details><summary>Where can I find delivery and returns information?</summary><p>Delivery and returns information will be added when the business policies are finalized.</p></details></section>
+      <section id="faq" className="sw-section" aria-labelledby="faq-title">
+        <div className="sw-container sw-container-narrow sw-faq">
+          <div className="sw-heading-group" data-reveal="">
+            <span className="sw-kicker">A little more clarity</span>
+            <h2 id="faq-title" className="sw-h2">
+              Good questions. <em>Thoughtful answers.</em>
+            </h2>
+            <LocalizedClientLink href="/contact" className="sw-text-link">
+              Contact Support →
+            </LocalizedClientLink>
+          </div>
+          <FaqList />
+        </div>
+      </section>
     </div>
   )
 }

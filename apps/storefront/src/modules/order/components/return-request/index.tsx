@@ -1,16 +1,18 @@
 "use client"
 
+import { useFormAction } from "@lib/hooks/use-form-action"
 import { requestReturn, ReturnReason } from "@lib/data/returns"
 import { HttpTypes } from "@medusajs/types"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import NativeSelect from "@modules/common/components/native-select"
 import { Button, Heading, Text } from "@modules/common/components/ui"
-import { useActionState, useState } from "react"
+import { useState } from "react"
 
 // TODO(owner): set NEXT_PUBLIC_RETURN_WINDOW_DAYS once the returns policy is confirmed. Until
 // then any shipped or delivered order can request a return and the team reviews each request.
-const RETURN_WINDOW_DAYS = Number(process.env.NEXT_PUBLIC_RETURN_WINDOW_DAYS) || 0
+const RETURN_WINDOW_DAYS =
+  Number(process.env.NEXT_PUBLIC_RETURN_WINDOW_DAYS) || 0
 
 const RETURNABLE_FULFILLMENT = [
   "shipped",
@@ -46,9 +48,13 @@ export function returnEligibility(order: HttpTypes.StoreOrder, now: number) {
     }
   }
   if (RETURN_WINDOW_DAYS) {
-    const ageDays = (now - new Date(order.created_at ?? 0).getTime()) / 86_400_000
+    const ageDays =
+      (now - new Date(order.created_at ?? 0).getTime()) / 86_400_000
     if (ageDays > RETURN_WINDOW_DAYS) {
-      return { eligible: false, reason: "The return window for this order has closed." }
+      return {
+        eligible: false,
+        reason: "The return window for this order has closed.",
+      }
     }
   }
   if (!(order.items ?? []).some((item) => returnableQuantity(item) > 0)) {
@@ -67,10 +73,12 @@ const ReturnRequest = ({
   now: number
 }) => {
   const [open, setOpen] = useState(false)
-  const [state, formAction] = useActionState(requestReturn, null)
+  const [state, onSubmit, pending] = useFormAction(requestReturn, null)
   const requested = (order.items ?? []).some(
     (item) =>
-      Number((item as { detail?: ItemDetail }).detail?.return_requested_quantity ?? 0) > 0
+      Number(
+        (item as { detail?: ItemDetail }).detail?.return_requested_quantity ?? 0
+      ) > 0
   )
   const { eligible, reason } = returnEligibility(order, now)
 
@@ -104,10 +112,16 @@ const ReturnRequest = ({
     )
   }
 
-  const items = (order.items ?? []).filter((item) => returnableQuantity(item) > 0)
+  const items = (order.items ?? []).filter(
+    (item) => returnableQuantity(item) > 0
+  )
 
   return (
-    <form action={formAction} className="flex flex-col gap-y-4" data-testid="return-form">
+    <form
+      onSubmit={onSubmit}
+      className="flex flex-col gap-y-4"
+      data-testid="return-form"
+    >
       <Heading level="h2" className="text-xl-semi">
         Request a return
       </Heading>
@@ -164,8 +178,14 @@ const ReturnRequest = ({
         data-testid="return-error-message"
       />
       <div className="flex flex-wrap gap-3">
-        <SubmitButton data-testid="submit-return-button">Submit return request</SubmitButton>
-        <Button variant="transparent" type="button" onClick={() => setOpen(false)}>
+        <SubmitButton isLoading={pending} data-testid="submit-return-button">
+          Submit return request
+        </SubmitButton>
+        <Button
+          variant="transparent"
+          type="button"
+          onClick={() => setOpen(false)}
+        >
           Cancel
         </Button>
       </div>

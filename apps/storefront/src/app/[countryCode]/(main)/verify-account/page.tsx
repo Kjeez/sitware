@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import { NOINDEX } from "@lib/site"
 import { Suspense } from "react"
 
 import VerifyAccount from "@modules/account/components/verify-account"
@@ -6,6 +7,7 @@ import VerifyAccount from "@modules/account/components/verify-account"
 export const metadata: Metadata = {
   title: "Verify your email",
   description: "Verify your email address to complete your registration.",
+  robots: NOINDEX,
 }
 
 export default function VerifyAccountPage() {

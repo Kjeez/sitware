@@ -24,3 +24,20 @@ export const AdminUpdateReview = z.object({
   status: ReviewStatus,
 })
 export type AdminUpdateReviewType = z.infer<typeof AdminUpdateReview>
+
+export const StoreOrderStatusLookup = z.object({
+  order_number: z.coerce.number().int().positive(),
+  email: z.string().trim().email(),
+})
+export type StoreOrderStatusLookupType = z.infer<typeof StoreOrderStatusLookup>
+
+export const StoreContactMessage = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z.string().trim().email(),
+  phone: z.string().trim().max(20).optional(),
+  subject: z.string().trim().max(150).optional(),
+  message: z.string().trim().min(10).max(3000),
+  // Honeypot: real visitors never fill this hidden field.
+  website: z.string().max(0).optional(),
+})
+export type StoreContactMessageType = z.infer<typeof StoreContactMessage>

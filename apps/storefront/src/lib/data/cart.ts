@@ -5,6 +5,7 @@ import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
+import { normalizePhone, validateIndianAddress } from "@lib/util/indian-address"
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -296,53 +297,61 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
     if (!formData) {
       throw new Error("No form data found when setting addresses")
     }
-    const cartId = getCartId()
+    const cartId = await getCartId()
     if (!cartId) {
       throw new Error("No existing cart found when setting addresses")
     }
 
     const getValue = (name: string) => {
       const value = formData.get(name)
-      return typeof value === "string" ? value : ""
+      return typeof value === "string" ? value.trim() : ""
     }
-    const shippingAddress: HttpTypes.StoreAddAddress = {
-      first_name: getValue("shipping_address.first_name"),
-      last_name: getValue("shipping_address.last_name"),
-      address_1: getValue("shipping_address.address_1"),
-      address_2: "",
-      company: getValue("shipping_address.company"),
-      postal_code: getValue("shipping_address.postal_code"),
-      city: getValue("shipping_address.city"),
-      country_code: getValue("shipping_address.country_code"),
-      province: getValue("shipping_address.province"),
-      phone: getValue("shipping_address.phone"),
+    // Sitware ships within India only, so the country is fixed and phones are stored as +91.
+    const readAddress = (prefix: string): HttpTypes.StoreAddAddress => ({
+      first_name: getValue(`${prefix}.first_name`),
+      last_name: getValue(`${prefix}.last_name`),
+      address_1: getValue(`${prefix}.address_1`),
+      address_2: getValue(`${prefix}.address_2`),
+      postal_code: getValue(`${prefix}.postal_code`),
+      city: getValue(`${prefix}.city`),
+      country_code: "in",
+      province: getValue(`${prefix}.province`),
+      phone: getValue(`${prefix}.phone`),
+    })
+    const shippingAddress = readAddress("shipping_address")
+    const sameAsBilling = formData.get("same_as_billing") === "on"
+    const billingAddress = sameAsBilling
+      ? shippingAddress
+      : readAddress("billing_address")
+    const email = getValue("email").toLowerCase()
+
+    const errors = [
+      ...(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ? []
+        : ["Enter a valid email address."]),
+      ...validateIndianAddress(shippingAddress, "Delivery address"),
+      ...(sameAsBilling
+        ? []
+        : validateIndianAddress(billingAddress, "Billing address")),
+    ]
+    if (errors.length) {
+      return errors.join(" ")
     }
-    const billingAddress: HttpTypes.StoreAddAddress = {
-      first_name: getValue("billing_address.first_name"),
-      last_name: getValue("billing_address.last_name"),
-      address_1: getValue("billing_address.address_1"),
-      address_2: "",
-      company: getValue("billing_address.company"),
-      postal_code: getValue("billing_address.postal_code"),
-      city: getValue("billing_address.city"),
-      country_code: getValue("billing_address.country_code"),
-      province: getValue("billing_address.province"),
-      phone: getValue("billing_address.phone"),
-    }
-    const data: HttpTypes.StoreUpdateCart = {
-      shipping_address: shippingAddress,
-      billing_address:
-        formData.get("same_as_billing") === "on" ? shippingAddress : billingAddress,
-      email: getValue("email"),
-    }
-    await updateCart(data)
+
+    const withPhone = (address: HttpTypes.StoreAddAddress) => ({
+      ...address,
+      phone: `+91${normalizePhone(address.phone ?? "")}`,
+    })
+    await updateCart({
+      shipping_address: withPhone(shippingAddress),
+      billing_address: withPhone(billingAddress),
+      email,
+    })
   } catch (error) {
     return error instanceof Error ? error.message : "Unable to update addresses"
   }
 
-  redirect(
-    `/${formData.get("shipping_address.country_code")}/checkout?step=delivery`
-  )
+  redirect(`/in/checkout?step=delivery`)
 }
 
 /**

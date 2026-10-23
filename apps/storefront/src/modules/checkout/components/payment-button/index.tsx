@@ -1,11 +1,13 @@
 "use client"
 
-import { isManual, isStripeLike } from "@lib/constants"
+import { isManual, isRazorpay, isStripeLike } from "@lib/constants"
 import { placeOrder } from "@lib/data/cart"
+import { openRazorpay, RAZORPAY_CHECKOUT_SRC } from "@lib/util/razorpay"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@modules/common/components/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import { useParams } from "next/navigation"
+import Script from "next/script"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
 
@@ -33,6 +35,15 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         <StripePaymentButton
           notReady={notReady}
           cart={cart}
+          data-testid={dataTestId}
+        />
+      )
+    case isRazorpay(paymentSession?.provider_id):
+      return (
+        <RazorpayPaymentButton
+          notReady={notReady}
+          cart={cart}
+          session={paymentSession!}
           data-testid={dataTestId}
         />
       )
@@ -151,6 +162,66 @@ const StripePaymentButton = ({
       <ErrorMessage
         error={errorMessage}
         data-testid="stripe-payment-error-message"
+      />
+    </>
+  )
+}
+
+const RazorpayPaymentButton = ({
+  cart,
+  session,
+  notReady,
+  "data-testid": dataTestId,
+}: {
+  cart: HttpTypes.StoreCart
+  session: HttpTypes.StorePaymentSession
+  notReady: boolean
+  "data-testid"?: string
+}) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  // Once Razorpay reports success, retries only complete the order so the
+  // customer is never asked to pay twice.
+  const [paid, setPaid] = useState(false)
+
+  const handlePayment = async () => {
+    setSubmitting(true)
+    setErrorMessage(null)
+    try {
+      if (!paid) {
+        const address = cart.billing_address ?? cart.shipping_address
+        await openRazorpay({
+          sessionData: session.data ?? {},
+          name: [address?.first_name, address?.last_name]
+            .filter(Boolean)
+            .join(" "),
+          email: cart.email ?? "",
+          phone: address?.phone ?? "",
+        })
+        setPaid(true)
+      }
+      await placeOrder()
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : String(err))
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <>
+      <Script src={RAZORPAY_CHECKOUT_SRC} strategy="afterInteractive" />
+      <Button
+        disabled={notReady}
+        isLoading={submitting}
+        onClick={handlePayment}
+        size="large"
+        data-testid={dataTestId}
+      >
+        {paid ? "Complete order" : "Pay and place order"}
+      </Button>
+      <ErrorMessage
+        error={errorMessage}
+        data-testid="razorpay-payment-error-message"
       />
     </>
   )

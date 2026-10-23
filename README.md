@@ -48,6 +48,9 @@ Backend scripts live in `apps/backend/src/scripts` and run with `pnpm --filter @
 - `remove-demo-data.ts` — removes the Medusa starter template's sample apparel, categories, Europe region and warehouse if a database was ever seeded with them. Dry run unless `CONFIRM=yes` is set.
 - `migrate-product-images.ts` — uploads product images that still point at `localhost` to S3-compatible storage (Oracle Object Storage) and updates the products. Needs `S3_*` to be set.
 - `configure-local-storefront.ts` — local only: writes the publishable key into `apps/storefront/.env.local`.
+- `create-test-product.ts` — local only: creates a clearly labelled "TEST PRODUCT" (handle `sitware-test-product`, made-up ₹1,000 price, 50 in stock) for exercising checkout before the real catalog exists. Refuses to run unless `ALLOW_TEST_PRODUCT=yes` is set and `NODE_ENV` is not `production`. `remove-demo-data.ts` deletes it.
+
+Checkout ships within India only: the address form takes a 10-digit mobile number (stored as `+91…`), a 6-digit pincode and a state from the list, and the `setAddresses` server action re-validates them. Cash on Delivery is always offered; online payment appears only when Razorpay keys are set on the backend and `setup-checkout.ts` has been re-run.
 
 Optional integrations switch on only when their environment variables are set in `apps/backend/.env` (see `.env.template`): Razorpay payments, Google login, Resend email (emails are logged to the console otherwise), Redis and S3-compatible file storage. Restart Medusa after changing them.
 

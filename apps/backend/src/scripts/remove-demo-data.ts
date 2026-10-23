@@ -8,9 +8,9 @@ import {
   deleteStockLocationsWorkflow,
 } from "@medusajs/medusa/core-flows"
 
-// What the Medusa starter template's seed creates. Only these are removed, so products and
-// categories created for Sitware are never touched.
-const DEMO_PRODUCT_HANDLES = ["t-shirt", "sweatshirt", "sweatpants", "shorts"]
+// What the Medusa starter template's seed and the local create-test-product script create. Only
+// these are removed, so products and categories created for Sitware are never touched.
+const DEMO_PRODUCT_HANDLES = ["t-shirt", "sweatshirt", "sweatpants", "shorts", "sitware-test-product"]
 const DEMO_CATEGORY_NAMES = ["Shirts", "Sweatshirts", "Pants", "Merch"]
 const DEMO_STOCK_LOCATION_NAMES = ["European Warehouse"]
 const DEMO_FULFILLMENT_SET_NAMES = ["European Warehouse delivery"]
@@ -18,8 +18,8 @@ const KEEP_CURRENCIES = ["inr"]
 
 /**
  * Removes the Medusa starter template's demo data (sample apparel, its categories, the Europe
- * region and warehouse) if a database was ever seeded with it. Keeps Sitware's data and the
- * India (INR) region.
+ * region and warehouse) if a database was ever seeded with it, and the local-only test product.
+ * Keeps Sitware's data and the India (INR) region.
  *
  * Lists what it would delete unless run with CONFIRM=yes:
  *   pnpm --filter @sitware/backend exec medusa exec ./src/scripts/remove-demo-data.ts

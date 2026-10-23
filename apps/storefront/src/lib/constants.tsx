@@ -1,4 +1,4 @@
-import { CreditCard } from "@medusajs/icons"
+import { Cash, CreditCard } from "@medusajs/icons"
 import Bancontact from "@modules/common/icons/bancontact"
 import Ideal from "@modules/common/icons/ideal"
 import PayPal from "@modules/common/icons/paypal"
@@ -29,8 +29,13 @@ export const paymentInfoMap: Record<
     title: "PayPal",
     icon: <PayPal />,
   },
+  // Cash on Delivery uses Medusa's built-in manual provider.
   pp_system_default: {
-    title: "Manual Payment",
+    title: "Cash on Delivery",
+    icon: <Cash />,
+  },
+  pp_razorpay_razorpay: {
+    title: "Pay online (UPI, cards, netbanking)",
     icon: <CreditCard />,
   },
   // Add more payment providers here
@@ -48,6 +53,9 @@ export const isPaypal = (providerId?: string) => {
 }
 export const isManual = (providerId?: string) => {
   return providerId?.startsWith("pp_system_default")
+}
+export const isRazorpay = (providerId?: string) => {
+  return providerId?.startsWith("pp_razorpay")
 }
 
 // Add currencies that don't need to be divided by 100

@@ -16,12 +16,12 @@ export default async function configureLocalStorefront({ container }: ExecArgs) 
     entity: "sales_channel",
     fields: ["id", "name"],
   })
-  let channel = channels[0]
-  if (!channel) {
+  let channelId = channels[0]?.id
+  if (!channelId) {
     const { result } = await createSalesChannelsWorkflow(container).run({
       input: { salesChannelsData: [{ name: "Sitware local storefront" }] },
     })
-    channel = result[0]
+    channelId = result[0].id
   }
 
   const { data: keys } = await query.graph({
@@ -29,8 +29,15 @@ export default async function configureLocalStorefront({ container }: ExecArgs) 
     fields: ["id", "token", "revoked_at", "sales_channels.id"],
     filters: { title: "Sitware local storefront", type: "publishable" },
   })
-  let key = keys.find((candidate) => !candidate.revoked_at)
-  if (!key) {
+  const existingKey = keys.find((candidate) => !candidate.revoked_at)
+  let key: { id: string; token: string; linked: boolean }
+  if (existingKey) {
+    key = {
+      id: existingKey.id,
+      token: existingKey.token,
+      linked: !!existingKey.sales_channels?.some((linked) => linked?.id === channelId),
+    }
+  } else {
     const { result } = await createApiKeysWorkflow(container).run({
       input: {
         api_keys: [{
@@ -40,11 +47,11 @@ export default async function configureLocalStorefront({ container }: ExecArgs) 
         }],
       },
     })
-    key = { ...result[0], sales_channels: [] }
+    key = { id: result[0].id, token: result[0].token, linked: false }
   }
-  if (!key.sales_channels?.some((linked) => linked?.id === channel.id)) {
+  if (!key.linked) {
     await linkSalesChannelsToApiKeyWorkflow(container).run({
-      input: { id: key.id, add: [channel.id] },
+      input: { id: key.id, add: [channelId] },
     })
   }
 

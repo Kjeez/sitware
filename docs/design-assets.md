@@ -8,6 +8,8 @@ Assets live in `apps/storefront/public/images/editorial/`. The five `*-reference
 
 `sitware-hero-v2.webp` was generated using the built-in image generation tool and encoded as WebP for the hero and closing section. It is illustrative concept imagery, not final product photography. The original PNG is retained in `.local/design-source-images/` and the tool's generated-images directory.
 
+The social share images `apps/storefront/src/app/opengraph-image.jpg` and `twitter-image.jpg` (1200×630) are a crop of this hero with a dark left gradient and the wordmark and tagline set in Georgia, made with ffmpeg. Replace them when final product photography is available.
+
 Generation prompt:
 
 > Use case: photorealistic-natural. Asset type: website hero background, landscape 16:9. Create a photoreal editorial golden hour home office inspired by the user reference images: premium walnut desk with two black metal desktop sit stand converters, a single tier converter holding a laptop near the center and a larger two tier converter holding a monitor and keyboard on the right. Warm sunlight through tall windows on the right, plants, books, bronze desk lamp, tan leather chair in foreground. Dark walnut shelves and shadowed negative space on left 40 percent to accommodate web heading. Warm copper, dark espresso, cream. Entire desk converter mechanisms must be plausible black scissor lifts with sturdy bases. Calm premium architectural photography, realistic materials, no text, no logos, no UI, no watermark. This is illustrative concept imagery, not final product specifications.

@@ -15,3 +15,4 @@ Thumbs.db
 
 # Local PostgreSQL data and runtime files
 .local/
+*.tsbuildinfo

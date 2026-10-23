@@ -6,6 +6,7 @@ import { HttpTypes } from "@medusajs/types"
 import { FetchError } from "@medusajs/js-sdk"
 import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
+import { normalizePhone, validateIndianAddress } from "@lib/util/indian-address"
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -24,6 +25,18 @@ export type CustomerAuthState =
   | { state: "verification_required"; email: string }
   | { state: "success" }
   | null
+
+/** Turns Medusa auth errors into a sentence fit for the shopper. */
+function friendlyAuthError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error)
+  if (/invalid email or password/i.test(message)) {
+    return "Incorrect email or password."
+  }
+  if (/already exists/i.test(message)) {
+    return "An account with this email already exists. Please sign in."
+  }
+  return message || "Something went wrong. Please try again."
+}
 
 // Requests a verification email for the given customer. The request must be
 // authenticated with a token tied to the auth identity (the token returned by
@@ -110,7 +123,7 @@ export async function signup(
       fetchError.statusText !== "Unauthorized" ||
       fetchError.message !== "Identity with email already exists"
     ) {
-      return { state: "error", error: String(error) }
+      return { state: "error", error: friendlyAuthError(error) }
     }
   }
 
@@ -146,7 +159,7 @@ async function completeLogin(
   try {
     result = await sdk.auth.login("customer", "emailpass", { email, password })
   } catch (error) {
-    return { state: "error", error: String(error) }
+    return { state: "error", error: friendlyAuthError(error) }
   }
 
   // A `location` is returned by third-party auth providers, which this flow
@@ -278,6 +291,27 @@ export async function transferCart() {
   revalidateTag(cartCacheTag)
 }
 
+/** A saved address from the account form, validated and normalized like checkout's. */
+function readIndianAddress(formData: FormData) {
+  const value = (name: string) => String(formData.get(name) ?? "").trim()
+  const address = {
+    first_name: value("first_name"),
+    last_name: value("last_name"),
+    address_1: value("address_1"),
+    address_2: value("address_2"),
+    city: value("city"),
+    postal_code: value("postal_code"),
+    province: value("province"),
+    country_code: "in",
+    phone: value("phone"),
+  }
+  const errors = validateIndianAddress(address, "Address")
+  return {
+    address: { ...address, phone: `+91${normalizePhone(address.phone)}` },
+    error: errors.length ? errors.join(" ") : null,
+  }
+}
+
 export const addCustomerAddress = async (
   currentState: Record<string, unknown>,
   formData: FormData
@@ -285,17 +319,12 @@ export const addCustomerAddress = async (
   const isDefaultBilling = (currentState.isDefaultBilling as boolean) || false
   const isDefaultShipping = (currentState.isDefaultShipping as boolean) || false
 
+  const { address: indianAddress, error } = readIndianAddress(formData)
+  if (error) {
+    return { success: false, error }
+  }
   const address = {
-    first_name: formData.get("first_name") as string,
-    last_name: formData.get("last_name") as string,
-    company: formData.get("company") as string,
-    address_1: formData.get("address_1") as string,
-    address_2: formData.get("address_2") as string,
-    city: formData.get("city") as string,
-    postal_code: formData.get("postal_code") as string,
-    province: formData.get("province") as string,
-    country_code: formData.get("country_code") as string,
-    phone: formData.get("phone") as string,
+    ...indianAddress,
     is_default_billing: isDefaultBilling,
     is_default_shipping: isDefaultShipping,
   }
@@ -346,22 +375,9 @@ export const updateCustomerAddress = async (
     return { success: false, error: "Address ID is required" }
   }
 
-  const address = {
-    first_name: formData.get("first_name") as string,
-    last_name: formData.get("last_name") as string,
-    company: formData.get("company") as string,
-    address_1: formData.get("address_1") as string,
-    address_2: formData.get("address_2") as string,
-    city: formData.get("city") as string,
-    postal_code: formData.get("postal_code") as string,
-    province: formData.get("province") as string,
-    country_code: formData.get("country_code") as string,
-  } as HttpTypes.StoreUpdateCustomerAddress
-
-  const phone = formData.get("phone") as string
-
-  if (phone) {
-    address.phone = phone
+  const { address, error } = readIndianAddress(formData)
+  if (error) {
+    return { success: false, error }
   }
 
   const headers = {
@@ -378,4 +394,134 @@ export const updateCustomerAddress = async (
     .catch((err) => {
       return { success: false, error: err.toString() }
     })
+}
+
+const customerHeaders = (token: string) => ({ authorization: `Bearer ${token}` })
+
+/** Reads a JWT payload without verifying it (Medusa does that); used to check `actor_id`. */
+function decodeToken(token: string): Record<string, unknown> | null {
+  try {
+    return JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString())
+  } catch {
+    return null
+  }
+}
+
+/** Sends the customer to Google. Only offered when the backend has Google configured. */
+export async function startGoogleLogin() {
+  let result: Awaited<ReturnType<typeof sdk.auth.login>>
+  try {
+    result = await sdk.auth.login("customer", "google", {})
+  } catch {
+    redirect("/account?error=google")
+  }
+  if (typeof result === "object" && "location" in result && result.location) {
+    redirect(result.location)
+  }
+  redirect("/account?error=google")
+}
+
+/**
+ * Finishes a Google sign-in from the OAuth callback query. Creates the customer on the first
+ * sign-in, stores the session, keeps the guest cart, and links guest orders placed with the same
+ * (Google-verified) email. Returns how many orders were linked.
+ */
+export async function completeGoogleLogin(
+  query: Record<string, string>
+): Promise<{ linked: number }> {
+  const result = await sdk.auth.callback("customer", "google", query)
+  if (typeof result !== "string") {
+    throw new Error("Google sign-in could not be completed.")
+  }
+  let token = result
+
+  const payload = decodeToken(token)
+  if (!payload?.actor_id) {
+    // First Google sign-in: create the customer from Google's profile, then get a token for it.
+    const meta = (payload?.user_metadata ?? {}) as Record<string, string | undefined>
+    if (!meta.email) {
+      throw new Error("Google didn't share an email address for this account.")
+    }
+    await sdk.store.customer.create(
+      {
+        email: meta.email.toLowerCase(),
+        first_name: meta.given_name ?? "",
+        last_name: meta.family_name ?? "",
+      },
+      {},
+      customerHeaders(token)
+    )
+    token = (await sdk.auth.refresh(customerHeaders(token))).token
+  }
+
+  await setAuthToken(token)
+  revalidateTag(await getCacheTag("customers"))
+  await transferCart().catch(() => {})
+
+  const found = await findGuestOrders().catch(() => ({ claimed: 0, emailed: 0 }))
+  return { linked: found.claimed }
+}
+
+/**
+ * Finds guest orders placed with the signed-in customer's email. Google accounts (verified email)
+ * get them linked immediately; others get a confirmation email per order.
+ */
+export async function findGuestOrders(): Promise<{
+  claimed: number
+  emailed: number
+}> {
+  return sdk.client.fetch<{ claimed: number; emailed: number }>(
+    "/store/customers/me/find-orders",
+    { method: "POST", headers: await getAuthHeaders() }
+  )
+}
+
+export async function findGuestOrdersAction(): Promise<
+  { state: "done"; claimed: number; emailed: number } | { state: "error"; error: string }
+> {
+  try {
+    return { state: "done", ...(await findGuestOrders()) }
+  } catch {
+    return { state: "error", error: "We couldn't look for your orders. Please try again." }
+  }
+}
+
+export async function requestPasswordReset(
+  _currentState: unknown,
+  formData: FormData
+): Promise<{ state: "sent"; email: string } | { state: "error"; error: string } | null> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { state: "error", error: "Enter a valid email address." }
+  }
+  try {
+    await sdk.auth.resetPassword("customer", "emailpass", { identifier: email })
+  } catch {
+    // The response is the same whether or not an account exists, so addresses can't be probed.
+  }
+  return { state: "sent", email }
+}
+
+export async function resetPassword(
+  _currentState: unknown,
+  formData: FormData
+): Promise<CustomerAuthState> {
+  const token = String(formData.get("token") ?? "")
+  const email = String(formData.get("email") ?? "")
+  const password = String(formData.get("password") ?? "")
+  if (password.length < 8) {
+    return { state: "error", error: "Password must be at least 8 characters." }
+  }
+  if (password !== formData.get("confirm_password")) {
+    return { state: "error", error: "Passwords don't match." }
+  }
+  try {
+    await sdk.auth.updateProvider("customer", "emailpass", { email, password }, token)
+  } catch {
+    return {
+      state: "error",
+      error: "This reset link has expired or was already used. Please request a new one.",
+    }
+  }
+  return completeLogin(email, password)
 }

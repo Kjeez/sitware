@@ -1,4 +1,5 @@
 import { retrieveOrder } from "@lib/data/orders"
+import { listReturnReasons } from "@lib/data/returns"
 import OrderDetailsTemplate from "@modules/order/templates/order-details-template"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -29,5 +30,9 @@ export default async function OrderDetailPage(props: Props) {
     notFound()
   }
 
-  return <OrderDetailsTemplate order={order} />
+  const reasons = await listReturnReasons()
+
+  return (
+    <OrderDetailsTemplate order={order} returnReasons={reasons} now={Date.now()} />
+  )
 }

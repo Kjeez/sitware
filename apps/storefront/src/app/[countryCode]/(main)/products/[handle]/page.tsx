@@ -2,6 +2,9 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
+import { retrieveCustomer } from "@lib/data/customer"
+import { getMyReview, getProductReviews } from "@lib/data/reviews"
+import { getWishlist } from "@lib/data/wishlist"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
 
@@ -78,12 +81,23 @@ export default async function ProductPage(props: Props) {
 
   const images = getImagesForVariant(pricedProduct, selectedVariantId)
 
+  const [customer, wishlist, reviews, myReview] = await Promise.all([
+    retrieveCustomer(),
+    getWishlist(),
+    getProductReviews(pricedProduct.id),
+    getMyReview(pricedProduct.id),
+  ])
+
   return (
     <ProductTemplate
       product={pricedProduct}
       region={region}
       countryCode={params.countryCode}
       images={images ?? []}
+      signedIn={!!customer}
+      wishlisted={!!wishlist?.some((item) => item.product_id === pricedProduct.id)}
+      reviews={reviews}
+      myReview={myReview}
     />
   )
 }

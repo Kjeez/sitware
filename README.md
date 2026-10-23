@@ -50,6 +50,17 @@ Backend scripts live in `apps/backend/src/scripts` and run with `pnpm --filter @
 - `configure-local-storefront.ts` — local only: writes the publishable key into `apps/storefront/.env.local`.
 - `create-test-product.ts` — local only: creates a clearly labelled "TEST PRODUCT" (handle `sitware-test-product`, made-up ₹1,000 price, 50 in stock) for exercising checkout before the real catalog exists. Refuses to run unless `ALLOW_TEST_PRODUCT=yes` is set and `NODE_ENV` is not `production`. `remove-demo-data.ts` deletes it.
 
+### Customer accounts
+
+- **Sign-in:** email and password, plus "Continue with Google" when `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` are set on the backend and `NEXT_PUBLIC_GOOGLE_LOGIN_ENABLED=true` on the storefront. Google's authorized redirect URI is `<STOREFRONT_URL>/auth/google/callback`.
+- **Password reset:** "Forgot password?" emails a 15-minute link to `/reset-password` (the `auth.password_reset` subscriber).
+- **Guest orders:** "Find my orders" on the orders page looks for guest orders placed with the account's email. Google accounts (verified email) get them linked straight away, including on every Google sign-in; email/password accounts get an email per order linking to `/order/<id>/transfer/<token>`, where the email owner accepts or declines.
+- **Returns:** a customer can request a return from a shipped or delivered order (reason, quantities and a note). It uses the "Return Pickup" option from `setup-checkout.ts` and shows up in Medusa Admin under the order. `NEXT_PUBLIC_RETURN_WINDOW_DAYS` limits how long after ordering this is possible; it is blank until the returns policy is confirmed.
+- **Wishlist:** heart on the product page and an account Wishlist page (`wishlist` module).
+- **Reviews:** signed-in customers can review a product once (`review` module). Reviews stay hidden until approved under **Reviews** in Medusa Admin, are marked "Verified Buyer" when the customer has an order containing the product, and the star summary only appears once an approved review exists. Approved reviews reach the product page within about a minute.
+
+Without Resend keys, emails (password reset, order linking) are written to the backend log instead of being sent.
+
 Checkout ships within India only: the address form takes a 10-digit mobile number (stored as `+91…`), a 6-digit pincode and a state from the list, and the `setAddresses` server action re-validates them. Cash on Delivery is always offered; online payment appears only when Razorpay keys are set on the backend and `setup-checkout.ts` has been re-run.
 
 Optional integrations switch on only when their environment variables are set in `apps/backend/.env` (see `.env.template`): Razorpay payments, Google login, Resend email (emails are logged to the console otherwise), Redis and S3-compatible file storage. Restart Medusa after changing them.

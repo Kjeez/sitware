@@ -1,38 +1,36 @@
+import { Metadata } from "next"
+
 import { Heading, Text } from "@modules/common/components/ui"
 import TransferActions from "@modules/order/components/transfer-actions"
-import TransferImage from "@modules/order/components/transfer-image"
 
-export default async function TransferPage({
-  params,
-}: {
-  params: { id: string; token: string }
+export const metadata: Metadata = {
+  title: "Add order to account | SITWARE",
+  robots: { index: false },
+}
+
+// Opened from the "add this order to your account" email. The emailed token proves the reader
+// controls the order's email address, so no sign-in is needed.
+export default async function TransferPage(props: {
+  params: Promise<{ id: string; token: string }>
 }) {
-  const { id, token } = params
+  const { id, token } = await props.params
 
   return (
-    <div className="flex flex-col gap-y-4 items-start w-2/5 mx-auto mt-10 mb-20">
-      <TransferImage />
-      <div className="flex flex-col gap-y-6">
-        <Heading level="h1" className="text-xl text-zinc-900">
-          Transfer request for order {id}
-        </Heading>
-        <Text className="text-zinc-600">
-          You&#39;ve received a request to transfer ownership of your order ({id}).
-          If you agree to this request, you can approve the transfer by clicking
-          the button below.
-        </Text>
-        <div className="w-full h-px bg-zinc-200" />
-        <Text className="text-zinc-600">
-          If you accept, the new owner will take over all responsibilities and
-          permissions associated with this order.
-        </Text>
-        <Text className="text-zinc-600">
-          If you do not recognize this request or wish to retain ownership, no
-          further action is required.
-        </Text>
-        <div className="w-full h-px bg-zinc-200" />
-        <TransferActions id={id} token={token} />
-      </div>
+    <div className="content-container flex flex-col gap-y-6 max-w-xl mx-auto mt-10 mb-20">
+      <Heading level="h1" className="text-2xl-semi">
+        Add this order to a Sitware account?
+      </Heading>
+      <Text className="text-ui-fg-subtle">
+        Someone signed in to a Sitware account asked to add an order placed
+        with your email address. If that was you, accept below and the order
+        will appear under your orders.
+      </Text>
+      <Text className="text-ui-fg-subtle">
+        If you don&apos;t recognise this request, decline it or simply ignore
+        the email. Nothing changes until you accept.
+      </Text>
+      <div className="w-full h-px bg-ui-border-base" />
+      <TransferActions id={id} token={token} />
     </div>
   )
 }

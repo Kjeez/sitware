@@ -10,7 +10,8 @@ import React, { useEffect, useRef } from "react"
 type AddressPrefix = "shipping_address" | "billing_address"
 
 /**
- * Indian delivery address fields, named `<prefix>.<field>` for the `setAddresses` action.
+ * Indian delivery address fields, named `<prefix>.<field>` for the checkout's `setAddresses`
+ * action, or plain `<field>` without a prefix (saved addresses in the account).
  * The store ships within India only, so the country is fixed.
  */
 const AddressFields = ({
@@ -18,20 +19,23 @@ const AddressFields = ({
   values,
   onChange,
 }: {
-  prefix: AddressPrefix
+  prefix?: AddressPrefix
   values: Record<string, string>
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void
 }) => {
-  const field = (name: string) => `${prefix}.${name}`
+  const field = (name: string) => (prefix ? `${prefix}.${name}` : name)
+  // Always a string, so every field is controlled from the first render and the state select
+  // shows its "State" placeholder instead of the browser picking the first state.
+  const value = (name: string) => values[field(name)] ?? ""
   const testId = (name: string) =>
-    `${prefix === "shipping_address" ? "shipping" : "billing"}-${name}`
+    `${prefix === "shipping_address" ? "shipping" : prefix ? "billing" : "address"}-${name}`
 
   // React resets a form after its action runs and restores controlled inputs,
   // but not controlled selects, so the chosen state is put back by hand.
   const stateSelect = useRef<HTMLSelectElement>(null)
-  const province = values[field("province")]
+  const province = value("province")
   useEffect(() => {
     const form = stateSelect.current?.form
     if (!form) {
@@ -40,7 +44,7 @@ const AddressFields = ({
     const restore = () =>
       setTimeout(() => {
         if (stateSelect.current) {
-          stateSelect.current.value = province ?? ""
+          stateSelect.current.value = province
         }
       })
     form.addEventListener("reset", restore)
@@ -53,7 +57,7 @@ const AddressFields = ({
         label="First name"
         name={field("first_name")}
         autoComplete="given-name"
-        value={values[field("first_name")]}
+        value={value("first_name")}
         onChange={onChange}
         required
         data-testid={testId("first-name-input")}
@@ -62,7 +66,7 @@ const AddressFields = ({
         label="Last name"
         name={field("last_name")}
         autoComplete="family-name"
-        value={values[field("last_name")]}
+        value={value("last_name")}
         onChange={onChange}
         data-testid={testId("last-name-input")}
       />
@@ -71,7 +75,7 @@ const AddressFields = ({
           label="House / flat, street"
           name={field("address_1")}
           autoComplete="address-line1"
-          value={values[field("address_1")]}
+          value={value("address_1")}
           onChange={onChange}
           required
           minLength={5}
@@ -83,7 +87,7 @@ const AddressFields = ({
           label="Area, landmark (optional)"
           name={field("address_2")}
           autoComplete="address-line2"
-          value={values[field("address_2")]}
+          value={value("address_2")}
           onChange={onChange}
           data-testid={testId("address-2-input")}
         />
@@ -92,7 +96,7 @@ const AddressFields = ({
         label="City"
         name={field("city")}
         autoComplete="address-level2"
-        value={values[field("city")]}
+        value={value("city")}
         onChange={onChange}
         required
         data-testid={testId("city-input")}
@@ -122,7 +126,7 @@ const AddressFields = ({
         maxLength={6}
         pattern={PINCODE_PATTERN}
         title="Enter a valid 6-digit pincode."
-        value={values[field("postal_code")]}
+        value={value("postal_code")}
         onChange={onChange}
         required
         data-testid={testId("postal-code-input")}
@@ -136,7 +140,7 @@ const AddressFields = ({
         maxLength={10}
         pattern={MOBILE_PATTERN}
         title="Enter a valid 10-digit mobile number."
-        value={values[field("phone")]}
+        value={value("phone")}
         onChange={onChange}
         required
         data-testid={testId("phone-input")}

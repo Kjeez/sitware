@@ -146,5 +146,7 @@ module.exports = defineConfig({
           },
         ]
       : []),
+    { resolve: "./src/modules/wishlist" },
+    { resolve: "./src/modules/review" },
   ],
 })

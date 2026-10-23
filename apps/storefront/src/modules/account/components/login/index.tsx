@@ -1,8 +1,11 @@
 import { login } from "@lib/data/customer"
+import GoogleSignIn from "@modules/account/components/google-sign-in"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import Input from "@modules/common/components/input"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { useSearchParams } from "next/navigation"
 import { useActionState } from "react"
 
 type Props = {
@@ -11,6 +14,7 @@ type Props = {
 
 const Login = ({ setCurrentView }: Props) => {
   const [message, formAction] = useActionState(login, null)
+  const googleFailed = useSearchParams().get("error") === "google"
 
   return (
     <div
@@ -19,8 +23,18 @@ const Login = ({ setCurrentView }: Props) => {
     >
       <h1 className="text-large-semi uppercase mb-6">Welcome back</h1>
       <p className="text-center text-base-regular text-ui-fg-base mb-8">
-        Sign in to access an enhanced shopping experience.
+        Sign in to see your orders, saved addresses and wishlist.
       </p>
+      {googleFailed && (
+        <div
+          className="w-full mb-6 text-center text-base-regular text-rose-600 bg-ui-bg-subtle border border-ui-border-base rounded-rounded p-4"
+          data-testid="google-error-message"
+        >
+          Google sign-in could not be completed. If you already have an
+          account with this email, sign in with your password.
+        </div>
+      )}
+      <GoogleSignIn />
       {message?.state === "verification_required" && (
         <div
           className="w-full mb-6 text-center text-base-regular text-ui-fg-base bg-ui-bg-subtle border border-ui-border-base rounded-rounded p-4"
@@ -50,6 +64,13 @@ const Login = ({ setCurrentView }: Props) => {
             data-testid="password-input"
           />
         </div>
+        <LocalizedClientLink
+          href="/forgot-password"
+          className="block text-right text-small-regular underline mt-2"
+          data-testid="forgot-password-link"
+        >
+          Forgot password?
+        </LocalizedClientLink>
         <ErrorMessage
           error={message?.state === "error" ? message.error : null}
           data-testid="login-error-message"

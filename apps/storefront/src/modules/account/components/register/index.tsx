@@ -2,6 +2,7 @@
 
 import { useActionState } from "react"
 import Input from "@modules/common/components/input"
+import GoogleSignIn from "@modules/account/components/google-sign-in"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
@@ -25,6 +26,7 @@ const Register = ({ setCurrentView }: Props) => {
       <p className="text-center text-base-regular text-ui-fg-base mb-4">
         Save your addresses and follow your orders in one place.
       </p>
+      <GoogleSignIn />
       {message?.state === "verification_required" && (
         <div
           className="w-full mb-4 text-center text-base-regular text-ui-fg-base bg-ui-bg-subtle border border-ui-border-base rounded-rounded p-4"

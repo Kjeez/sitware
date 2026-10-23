@@ -26,6 +26,14 @@ The hero visual is an editorial concept image and may not match final production
 
 ## Project structure
 
+### Existing Windows setup without Docker
+
+This computer has a separate local Sitware PostgreSQL 18 instance in `.local/postgres`, listening only on localhost port 5433. Its connection URL is in the ignored `apps/backend/.env`. Database data and credentials under `.local/` are also ignored. This instance does not use the other project's PostgreSQL server on port 5432.
+
+Start it with `corepack pnpm db:local:up`, then run `corepack pnpm dev`. Stop it with `corepack pnpm db:local:down` after stopping the apps. These commands manage the already initialized local instance; on a new computer, follow the Docker setup above instead. Use Node.js 22.22 or newer.
+
+The local schema, India region, storefront publishable key and sales channel are configured. To repeat the local storefront connection setup, run `corepack pnpm --filter @sitware/backend exec medusa exec ./src/scripts/configure-local-storefront.ts`, then restart the storefront. The script reuses its existing key and saves it in the ignored `.env.local` file. An admin account and the remaining commerce setup still need to be configured using the steps above. No sample catalog or prices are added.
+
 - `apps/storefront` — Sitware Next.js storefront and all customer-facing flows
 - `apps/backend` — Medusa API and admin
 - `compose.yaml` — local PostgreSQL

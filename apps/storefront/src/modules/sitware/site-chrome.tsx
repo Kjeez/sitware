@@ -1,18 +1,24 @@
-import Image from "next/image"
-import Link from "next/link"
-import NewsletterForm from "@modules/sitware/newsletter-form"
+"use client"
 
-export default function SiteChrome(props: { children: React.ReactNode }) {
+import { useParams, usePathname } from "next/navigation"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { WorkspaceIcon } from "@modules/sitware/workspace-icon"
+
+export default function SiteChrome({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const { countryCode } = useParams()
+  const isHome = pathname === "/" + countryCode || pathname === "/" + countryCode + "/"
+  const navigation = [{ href: "/#workstations", label: "Shop" }, { href: "/#better-work", label: "Better Work" }, { href: "/#story", label: "Our Story" }, { href: "/#support", label: "Support" }]
   return (
-    <div className="sitware-site">
-      <div className="announcement">Thoughtful workspaces, made for the way we work now</div>
+    <div className={"sitware-site " + (isHome ? "home-chrome" : "inner-chrome")}>
+      <a className="skip-link" href="#page-content">Skip to content</a>
       <header className="sw-header">
-        <Link className="sw-wordmark" href="/in" aria-label="Sitware home"><Image src="/images/sitware-logo.svg" width={800} height={126} alt="SITWARE — Designed For Better Work." /></Link>
-        <nav aria-label="Main navigation"><Link href="/in/store">Shop</Link><Link href="/in#belief">Our belief</Link><Link href="/in#story">Our story</Link></nav>
-        <div className="sw-actions"><Link href="/in/account">Account</Link><Link className="bag-link" href="/in/cart">Bag <span>↗</span></Link><details className="mobile-menu"><summary aria-label="Open menu">☰</summary><div className="mobile-menu-panel"><Link href="/in/store">Shop</Link><Link href="/in#belief">Our belief</Link><Link href="/in#story">Our story</Link><Link href="/in/account">Account</Link></div></details></div>
+        <LocalizedClientLink className="sw-wordmark" href="/" aria-label="Sitware home"><span>SITWARE</span><small>Designed For Better Work.</small></LocalizedClientLink>
+        <nav aria-label="Main navigation">{navigation.map((item) => <LocalizedClientLink href={item.href} key={item.label}>{item.label}</LocalizedClientLink>)}</nav>
+        <div className="sw-actions"><LocalizedClientLink href="/store" aria-label="Browse products" title="Browse products"><WorkspaceIcon name="search" /></LocalizedClientLink><LocalizedClientLink href="/account" aria-label="Your account" title="Your account"><WorkspaceIcon name="user" /></LocalizedClientLink><LocalizedClientLink href="/cart" aria-label="Shopping bag" title="Shopping bag"><WorkspaceIcon name="cart" /></LocalizedClientLink><details className="mobile-menu"><summary aria-label="Open navigation"><span /><span /></summary><nav className="mobile-menu-panel" aria-label="Mobile navigation">{navigation.map((item) => <LocalizedClientLink href={item.href} key={item.label} onClick={() => document.querySelector(".mobile-menu")?.removeAttribute("open")}>{item.label}</LocalizedClientLink>)}</nav></details></div>
       </header>
-      {props.children}
-      <footer className="sw-footer"><div className="footer-main"><div className="footer-brand"><Link className="sw-wordmark" href="/in"><Image src="/images/sitware-logo.svg" width={800} height={126} alt="SITWARE — Designed For Better Work." /></Link><p>Thoughtfully designed for<br />the way we work now.</p><div className="socials"><a href="https://www.instagram.com/sitware_/" target="_blank" rel="noreferrer">Instagram ↗</a><a href="https://www.linkedin.com/company/sitwareofficial/" target="_blank" rel="noreferrer">LinkedIn ↗</a></div></div><div className="footer-col"><h3>Shop</h3><Link href="/in/store">Workstations</Link><Link href="/in/store">Accessories</Link><Link href="/in/store">All products</Link></div><div className="footer-col"><h3>About</h3><Link href="/in#story">Our story</Link><Link href="/in#belief">Better work</Link><Link href="/in/store">Contact us</Link></div><div className="footer-col"><h3>Support</h3><Link href="/in/store">FAQ</Link><Link href="/in/store">Shipping & delivery</Link><Link href="/in/store">Returns</Link></div><div className="footer-news"><h3>Join our journey</h3><p>Get updates on new products and workspace ideas.</p><NewsletterForm /></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Sitware. All rights reserved.</span><div><Link href="/in/store">Privacy policy</Link><Link href="/in/store">Terms & conditions</Link><Link href="/in/store">Contact</Link></div><span>Designed for better work.</span></div></footer>
+      <div id="page-content">{children}</div>
+      <footer className="sw-footer"><div className="footer-main"><div className="footer-brand"><LocalizedClientLink href="/" className="footer-wordmark">SITWARE</LocalizedClientLink><p>Designed For Better Work.</p></div><div className="footer-col"><h3>Shop</h3><LocalizedClientLink href="/#workstations">Workstations</LocalizedClientLink><LocalizedClientLink href="/store">All Products</LocalizedClientLink></div><div className="footer-col"><h3>About</h3><LocalizedClientLink href="/#story">Our Story</LocalizedClientLink><LocalizedClientLink href="/#better-work">Better Work</LocalizedClientLink><LocalizedClientLink href="/#how-it-works">How It Works</LocalizedClientLink></div><div className="footer-col"><h3>Support</h3><LocalizedClientLink href="/#support">FAQ</LocalizedClientLink><LocalizedClientLink href="/account">Your Account</LocalizedClientLink><LocalizedClientLink href="/cart">Your Bag</LocalizedClientLink></div><div className="footer-news"><h3>A better everyday</h3><p>Thoughtful products.<br />A workspace that feels like you.</p><LocalizedClientLink className="footer-explore" href="/#workstations">Explore the collection <span aria-hidden="true">→</span></LocalizedClientLink></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Sitware. All rights reserved.</span><span>Designed For Better Work.</span></div></footer>
     </div>
   )
 }

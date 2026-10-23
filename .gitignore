@@ -12,3 +12,6 @@ apps/backend/.medusa/
 *.log
 .DS_Store
 Thumbs.db
+
+# Local PostgreSQL data and runtime files
+.local/

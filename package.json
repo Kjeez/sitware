@@ -13,6 +13,8 @@
     "test": "turbo test",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
+    "db:local:up": "powershell -NoProfile -File scripts/local-db.ps1 start",
+    "db:local:down": "powershell -NoProfile -File scripts/local-db.ps1 stop",
     "backend:dev": "turbo dev --filter=@sitware/backend",
     "storefront:dev": "turbo dev --filter=@sitware/storefront"
   },

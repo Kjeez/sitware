@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Shift and Shift Pro. Once a model is published in Medusa this sends visitors to its product
+ * Switch and Switch Pro. Once a model is published in Medusa this sends visitors to its product
  * page; until then it shows the same page without a price or "Add to bag".
  */
 export default async function WorkstationRoute({ params }: Props) {

@@ -14,7 +14,7 @@ type ProductTemplateProps = {
   myReview: MyReview | null
 }
 
-/** Shift and Shift Pro get their full editorial page; any other product uses the same layout. */
+/** Switch and Switch Pro get their full editorial page; any other product uses the same layout. */
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
   countryCode,

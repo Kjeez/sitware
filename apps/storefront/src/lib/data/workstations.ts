@@ -12,7 +12,7 @@ export type WorkstationListing = {
 }
 
 /**
- * The Medusa products behind Shift and Shift Pro, with their price for the region. A model that
+ * The Medusa products behind Switch and Switch Pro, with their price for the region. A model that
  * isn't published yet comes back with `product: null`, and the pages show "Pricing at launch".
  */
 export async function getWorkstationListings(

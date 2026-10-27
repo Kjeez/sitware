@@ -13,7 +13,7 @@ import StepsShowcase from "@modules/sitware/steps-showcase"
 export const metadata: Metadata = {
   title: "SITWARE | Designed For Better Work.",
   description:
-    "Sitware Shift and Shift Pro upgrade the desk you already have for a more flexible, focused and intentional way of working.",
+    "Sitware Switch and Switch Pro upgrade the desk you already have for a more flexible, focused and intentional way of working.",
 }
 
 type Props = { params: Promise<{ countryCode: string }> }
@@ -21,7 +21,7 @@ type Props = { params: Promise<{ countryCode: string }> }
 export default async function Home(props: Props) {
   const { countryCode } = await props.params
   const listings = await getWorkstationListings(countryCode)
-  const shiftPrice = listings.shift.price
+  const switchPrice = listings.switch.price
 
   return (
     <div className="sw-home">
@@ -51,7 +51,7 @@ export default async function Home(props: Props) {
           <img
             data-parallax="0.18"
             src="/images/editorial/sitware-hero-v2.webp"
-            alt="Sitware Shift and Shift Pro on a walnut desk at golden hour"
+            alt="Sitware Switch and Switch Pro on a walnut desk at golden hour"
             fetchPriority="high"
           />
         </div>
@@ -85,13 +85,13 @@ export default async function Home(props: Props) {
           </div>
         </div>
         <div className="sw-hero-foot sw-hero-fade">
-          <span>Sit. Stand. Shift.</span>
+          <span>Sit. Stand. Switch.</span>
           <span className="sw-scroll-cue" aria-hidden="true">
             Scroll
             <span />
           </span>
-          <LocalizedClientLink href="/workstations/shift">
-            {shiftPrice ? `Shift from ${shiftPrice}` : "Meet Shift"} <span aria-hidden="true">→</span>
+          <LocalizedClientLink href="/workstations/switch">
+            {switchPrice ? `Switch from ${switchPrice}` : "Meet Switch"} <span aria-hidden="true">→</span>
           </LocalizedClientLink>
         </div>
       </header>
@@ -165,8 +165,8 @@ export default async function Home(props: Props) {
               Workspace imagery illustrates the design direction. Final product details will be
               shared with the collection.
             </p>
-            <LocalizedClientLink href="/workstations/shift-pro#compare" className="sw-text-link">
-              Compare Shift and Shift Pro →
+            <LocalizedClientLink href="/workstations/switch-pro#compare" className="sw-text-link">
+              Compare Switch and Switch Pro →
             </LocalizedClientLink>
           </div>
         </div>
@@ -190,7 +190,7 @@ export default async function Home(props: Props) {
               <img
                 data-parallax="0.12"
                 src="/images/sitware/changed.webp"
-                alt="Shift Pro workstation by a window"
+                alt="Switch Pro workstation by a window"
                 loading="lazy"
               />
             </div>
@@ -258,11 +258,11 @@ export default async function Home(props: Props) {
             Make your workspace work <em>better for you.</em>
           </h2>
           <div className="sw-actions-row">
-            <LocalizedClientLink href="/workstations/shift" className="sw-pill sw-pill-light">
-              Shop Shift{shiftPrice ? ` · ${shiftPrice}` : ""}
+            <LocalizedClientLink href="/workstations/switch" className="sw-pill sw-pill-light">
+              Shop Switch{switchPrice ? ` · ${switchPrice}` : ""}
             </LocalizedClientLink>
-            <LocalizedClientLink href="/workstations/shift-pro" className="sw-pill sw-pill-ghost">
-              Shop Shift Pro <span aria-hidden="true">→</span>
+            <LocalizedClientLink href="/workstations/switch-pro" className="sw-pill sw-pill-ghost">
+              Shop Switch Pro <span aria-hidden="true">→</span>
             </LocalizedClientLink>
           </div>
         </div>

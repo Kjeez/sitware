@@ -22,7 +22,7 @@ import WorkstationGallery, { GalleryImage } from "./workstation-gallery"
 const TBC = "To be confirmed"
 
 type Props = {
-  /** Sitware Shift / Shift Pro content, when the page is one of the two workstations. */
+  /** Sitware Switch / Switch Pro content, when the page is one of the two workstations. */
   workstation: Workstation | null
   /** The Medusa product; null for a workstation that isn't published yet. */
   product: HttpTypes.StoreProduct | null
@@ -249,7 +249,7 @@ export default function WorkstationPage({
               </div>
               <div>
                 <dt>Moves</dt>
-                <dd>Sit. Stand. Shift.</dd>
+                <dd>Sit. Stand. Switch.</dd>
               </div>
               <div>
                 <dt>Made for</dt>

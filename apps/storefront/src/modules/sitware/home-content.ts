@@ -58,7 +58,7 @@ export const FAQS = [
   },
   {
     q: "Which workstations are in the collection?",
-    a: "Two: Sitware Shift, a single-level, laptop-first workstation, and Sitware Shift Pro, a two-level workstation for a monitor and keyboard.",
+    a: "Two: Sitware Switch, a single-level, laptop-first workstation, and Sitware Switch Pro, a two-level workstation for a monitor and keyboard.",
   },
   {
     q: "Where can I find delivery and returns information?",

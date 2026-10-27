@@ -1,11 +1,11 @@
 /**
- * Editorial content for Sitware Shift and Shift Pro, from the approved homepage and product page
+ * Editorial content for Sitware Switch and Switch Pro, from the approved homepage and product page
  * designs. Prices, stock and variants never live here: they come from the Medusa products with
- * the same handle (`shift`, `shift-pro`).
+ * the same handle (`switch`, `switch-pro`).
  *
  * Imagery illustrates the design direction; final product photography replaces it later.
  */
-export type WorkstationHandle = "shift" | "shift-pro"
+export type WorkstationHandle = "switch" | "switch-pro"
 
 type Row = { k: string; v: string }
 type GalleryImage = {
@@ -43,10 +43,10 @@ export type Workstation = {
 const img = (name: string) => `/images/sitware/${name}.webp`
 
 export const WORKSTATIONS: Record<WorkstationHandle, Workstation> = {
-  shift: {
-    handle: "shift",
-    name: "Sitware Shift",
-    short: "Shift",
+  switch: {
+    handle: "switch",
+    name: "Sitware Switch",
+    short: "Switch",
     badge: "Everyday",
     kicker: "Single-level · Laptop-first",
     message: "Change your position. Not your desk.",
@@ -55,28 +55,28 @@ export const WORKSTATIONS: Record<WorkstationHandle, Workstation> = {
     setup: "Laptop-first, compact",
     bestFor: "Home / hybrid work",
     subtitle: "Laptop-first",
-    cutout: img("shift-cutout"),
-    photo: img("shift"),
+    cutout: img("switch-cutout"),
+    photo: img("switch"),
     gallery: [
       {
-        src: img("shift-cutout"),
-        alt: "Sitware Shift",
-        caption: "Sitware Shift",
+        src: img("switch-cutout"),
+        alt: "Sitware Switch",
+        caption: "Sitware Switch",
         studio: true,
       },
       {
-        src: img("shift"),
-        alt: "Shift with a laptop",
+        src: img("switch"),
+        alt: "Switch with a laptop",
         caption: "A place for your laptop",
       },
       {
         src: img("home"),
-        alt: "Shift in a home office",
+        alt: "Switch in a home office",
         caption: "Home office",
       },
       {
         src: img("hybrid"),
-        alt: "Shift in a living space",
+        alt: "Switch in a living space",
         caption: "Hybrid work",
       },
     ],
@@ -87,12 +87,12 @@ export const WORKSTATIONS: Record<WorkstationHandle, Workstation> = {
     ],
     moveTitle: "Upgrade the desk you already have.",
     moveNote:
-      "Keep the desk you love. Add Shift, and it becomes more than one way to work.",
+      "Keep the desk you love. Add Switch, and it becomes more than one way to work.",
     poses: [
       { label: "Before", img: img("step1") },
-      { label: "With Shift", img: img("step2") },
+      { label: "With Switch", img: img("step2") },
     ],
-    storyKicker: "A day with Shift",
+    storyKicker: "A day with Switch",
     storyTitle: "Your workday changes. Your workspace should too.",
     storyNote:
       "Sitting is not the enemy. Being stuck in one way of working is.",
@@ -109,10 +109,10 @@ export const WORKSTATIONS: Record<WorkstationHandle, Workstation> = {
       { k: "Best for", v: "Home / hybrid work" },
     ],
   },
-  "shift-pro": {
-    handle: "shift-pro",
-    name: "Sitware Shift Pro",
-    short: "Shift Pro",
+  "switch-pro": {
+    handle: "switch-pro",
+    name: "Sitware Switch Pro",
+    short: "Switch Pro",
     badge: "Flagship",
     kicker: "Two-level · Monitor + keyboard",
     message: "Turn your desk into a workstation.",
@@ -121,28 +121,28 @@ export const WORKSTATIONS: Record<WorkstationHandle, Workstation> = {
     setup: "Monitor + keyboard",
     bestFor: "Professional work",
     subtitle: "Monitor + keyboard",
-    cutout: img("shift-pro-cutout"),
-    photo: img("shiftpro"),
+    cutout: img("switch-pro-cutout"),
+    photo: img("switchpro"),
     gallery: [
       {
-        src: img("shift-pro-cutout"),
-        alt: "Sitware Shift Pro",
-        caption: "Sitware Shift Pro",
+        src: img("switch-pro-cutout"),
+        alt: "Sitware Switch Pro",
+        caption: "Sitware Switch Pro",
         studio: true,
       },
       {
-        src: img("shiftpro"),
-        alt: "Shift Pro with monitor and keyboard",
+        src: img("switchpro"),
+        alt: "Switch Pro with monitor and keyboard",
         caption: "Monitor + keyboard",
       },
       {
         src: img("pros"),
-        alt: "Shift Pro in a professional setup",
+        alt: "Switch Pro in a professional setup",
         caption: "Professionals",
       },
       {
         src: img("changed"),
-        alt: "Shift Pro by a window",
+        alt: "Switch Pro by a window",
         caption: "A complete workstation",
       },
     ],
@@ -155,7 +155,7 @@ export const WORKSTATIONS: Record<WorkstationHandle, Workstation> = {
         v: "Developers, designers, traders, founders, editors, architects and creators",
       },
     ],
-    moveTitle: "Sit. Stand. Shift.",
+    moveTitle: "Sit. Stand. Switch.",
     moveNote:
       "Monitor, keyboard and mouse rise together, so you can change position without changing your setup.",
     poses: [
@@ -170,7 +170,7 @@ export const WORKSTATIONS: Record<WorkstationHandle, Workstation> = {
       {
         k: "02",
         v: "Keyboard and mouse live on their own level.",
-        img: img("shiftpro"),
+        img: img("switchpro"),
       },
       {
         k: "03",
@@ -192,7 +192,7 @@ export const WORKSTATIONS: Record<WorkstationHandle, Workstation> = {
   },
 }
 
-export const WORKSTATION_ORDER: WorkstationHandle[] = ["shift", "shift-pro"]
+export const WORKSTATION_ORDER: WorkstationHandle[] = ["switch", "switch-pro"]
 
 export const isWorkstationHandle = (
   handle: string

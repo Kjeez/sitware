@@ -1,0 +1,11 @@
+# HTTPS reverse proxy for the Sitware Medusa API and admin dashboard.
+# Caddy requests and renews the TLS certificate automatically once DNS for API_DOMAIN points at
+# this server and ports 80/443 are open.
+{
+	email {$ACME_EMAIL}
+}
+
+{$API_DOMAIN} {
+	encode gzip
+	reverse_proxy medusa:9000
+}

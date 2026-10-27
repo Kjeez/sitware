@@ -16,3 +16,7 @@ Thumbs.db
 # Local PostgreSQL data and runtime files
 .local/
 *.tsbuildinfo
+
+# Deployment secrets and local database dumps on the server
+deploy/.env
+deploy/backups/

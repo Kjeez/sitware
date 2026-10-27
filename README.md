@@ -87,5 +87,3 @@ Production runs the storefront on Vercel (root directory `apps/storefront`) and 
 ## Notes
 
 The installed Medusa DTC starter is MIT licensed; see `LICENSE`. The backend needs a Medusa configuration (region, payment provider, shipping, catalog and publishable key) before transactions can be completed. Configure payment providers and real product data in Medusa Admin before opening checkout to customers. The unused upstream sample seed has been removed because it contains European regions and apparel products.
-#   s i t w a r e  
- 

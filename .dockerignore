@@ -1,0 +1,15 @@
+**/node_modules
+**/.medusa
+**/.next
+**/.turbo
+**/.env
+**/.env.*
+!**/.env.template
+**/coverage
+**/*.tsbuildinfo
+.git
+.local
+.claude
+deploy/.env
+deploy/backups
+apps/storefront/public

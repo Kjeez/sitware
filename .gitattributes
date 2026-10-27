@@ -1,0 +1,5 @@
+# Shell scripts, Caddy config and the Dockerfile run on Linux; keep LF endings even when
+# committed from Windows.
+*.sh text eol=lf
+deploy/Caddyfile text eol=lf
+**/Dockerfile text eol=lf

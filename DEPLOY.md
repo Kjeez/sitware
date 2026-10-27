@@ -117,7 +117,7 @@ Log in again (so the `docker` group applies), then get the code and configure it
 is private, so GitHub asks for your username and a personal access token with read access:
 
 ```bash
-git clone https://github.com/konnectwithkunal/sitware.git
+git clone https://github.com/Kjeez/sitware.git
 cd sitware/deploy
 cp env.example .env
 openssl rand -hex 32   # run 3 times: POSTGRES_PASSWORD, JWT_SECRET, COOKIE_SECRET
@@ -180,7 +180,7 @@ Check that the dump appears under `db/` in the `sitware-backups` bucket.
 
 ## Part 9 — Storefront on Vercel (15 min)
 
-1. vercel.com → **Add New → Project** → import `konnectwithkunal/sitware`.
+1. vercel.com → **Add New → Project** → import `Kjeez/sitware`.
    - **Root Directory:** `apps/storefront` (leave "Include files outside the root directory" on;
      Vercel installs the pnpm workspace from the repository root).
    - Framework: Next.js. **Node.js version:** 22.x (Project → Settings → General).
